@@ -1,39 +1,39 @@
 {
   "settings": [
 	{
-      "id": "retdata",
-      "name": "Output data specification.",
-      "description": "Select if you want to output/pass on the full input data set or only the flight locations (ground speed above antimode).",
-      "defaultValue": "all",
-      "type": "RADIOBUTTONS",
-      "options": [
-        {
-          "value": "all",
-          "displayText": "all data"
-        },
-		        {
-          "value": "flight",
-          "displayText": "only flight locations"
-        }
-      ]
-	},
-  {
-      "id": "speed_calc",
-      "name": "Ground speed calculation",
-      "description": "If you don't have GPS ground speed, do you want to calculate it?  It computes ground speed as distance between consecutive GPS fixes divided by the time between them (using mt_speed()).",
-      "defaultValue": "yes",
-      "type": "RADIOBUTTONS",
-      "options": [
-        {
-          "value": "yes",
-          "displayText": "Yes"
-        },
-		        {
-          "value": "no",
-          "displayText": "No"
-        }
-      ]
-	}
+  "id": "retdata",
+  "name": "Output data specification",
+  "description": "Choose whether to output the full input dataset or only flight locations, defined as locations with ground speed above the estimated antimode.",
+  "defaultValue": "all",
+  "type": "RADIOBUTTONS",
+  "options": [
+    {
+      "value": "all",
+      "displayText": "All data"
+    },
+    {
+      "value": "flight",
+      "displayText": "Only flight locations"
+    }
+  ]
+},
+{
+  "id": "speed_calc",
+  "name": "Ground speed calculation",
+  "description": "If the dataset does not contain ground speed, choose whether to calculate it as the distance between consecutive locations divided by the time between them using move2::mt_speed().",
+  "defaultValue": "yes",
+  "type": "RADIOBUTTONS",
+  "options": [
+    {
+      "value": "yes",
+      "displayText": "Yes"
+    },
+    {
+      "value": "no",
+      "displayText": "No"
+    }
+  ]
+}
       
   ],
   "dependencies": {

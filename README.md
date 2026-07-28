@@ -5,16 +5,31 @@ MoveApps
 Github repository: *github.com/movestore/Flight-Speed-Estimation*
 
 ## Description
-Fits a bimodal model to the GPS ground speed distribution and identifies the two peaks (modes) and the minimum between them (antimode) to filter flight locations (ground speed above the antimode). The App outputs a table of track-specific parameters, including the mean and SD of speeds above the antimode (as an estimate of flight speed).
+This App fits a bimodal model to the ground-speed distribution of each track. It identifies two peaks, called modes, and the minimum between them, called the antimode. 
+The antimode serves as a track-specific threshold for separating lower-speed, non-flight locations from higher-speed, likely flight locations.
+
+The App produces a table containing the estimated mode1, antimode, mode2, and the mean and standard deviation of speeds above the antimode.
 
 ## Documentation
-This App uses the locmodes() function from the multimodes package to fit a bimodal to the ground speed distribution of each track/animal. For each track a histogramme with the fitted function is provided. Mode1 (estimated non-flight speed), antimode (minimum between both behaviours) and mode2 (estimated flight speed) are visible by dotted lines in the plot and provided in a .csv table. In the table also average and standard deviation of the three parameters are provided.
+This App uses the locmodes() function from the multimode package to fit a bimodal model to the ground-speed distribution of each track.
 
-If selected, only the locations with ground speed above the antimode are passed on, else the complete data set.
+For each track, the App creates a histogram with the fitted density distribution overlaid. The plot shows:
 
-Note that this App works properly only if the two movement modes (no flight and flight) properly separate by ground speed. If there are e.g. intermediate behaviours, clear separations might be difficult and results inaccurate.
+mode1: the estimated peak of the lower-speed, non-flight behaviour;
+antimode: the minimum between the two speed modes, used as the flight threshold;
+mode2: the estimated peak of the higher-speed, flight behaviour.
 
-This App works best with (instantaneous) GPS ground speed. If your dataset does not include ground speed, you can optionally calculate it as the distance between consecutive GPS fixes divided by the time difference (using move2::mt_speed()), by selecting Yes in the Ground speed calculation setting.
+Mode1 and mode2 are shown by dashed lines, while the antimode is shown by a dotted line. The estimated values are also included in a CSV table.
+
+The table additionally reports the mean and standard deviation of all ground-speed values above the antimode. These values provide a summary of
+the likely flight speeds for each track. Overall means and standard deviations across tracks are appended to the table.
+
+If retdata = "flight" is selected, the App returns only locations with ground speed above the estimated antimode for their track. Otherwise, it returns the full dataset.
+
+The App works best when the ground-speed distribution clearly contains two distinct movement modes. If flight and non-flight speeds overlap strongly, or if intermediate behaviours are common, the estimated modes and antimode may be unreliable.
+
+The App preferably uses an existing instantaneous GPS ground-speed variable named ground_speed or ground.speed. If neither variable is available, the App can calculate ground speed using move2::mt_speed(). This function calculates step speed
+as the distance between consecutive GPS locations divided by the time difference between them. The calculated speed may differ from instantaneous ground speed recorded by the tracking device.
 
 ### Application scope
 #### Generality of App usability
@@ -32,28 +47,26 @@ If ground speed is missing and the *Ground speed calculation* setting is set to 
 `move2::move2_loc`
 
 ### Artefacts
-`Modes_Histogrammes.pdf`: For each track, a histogram with the fitted distribution overlaid, including mode1, antimode, and mode2.
-
-`groundspeed_modes.csv`: A table of the fitted model parameters per track, with overall means and standard deviations added.
+`Modes_Histogrammes.pdf`: Contains one histogram per track with the fitted density distribution, mode1, antimode, and mode2.
+`groundspeed_modes.csv`: Contains the fitted parameters for each track, the mean and standard deviation of speeds above the antimode, and overall means and standard deviations across tracks.
 
 ### Settings 
 
-**Output data specification (`retdata`)**: Choose whether to output/pass on the full input dataset (**all**) or only the flight locations (**flight**; locations with ground speed above the antimode).
+**Output data specification**: Choose whether to output the full input dataset (**All data**) or only flight locations, defined as locations with ground speed above the estimated antimode. (**Only flight locations**).
 
-**Ground speed calculation (`speed_calc`)**: If ground speed is missing, choose whether to calculate it (**yes**) as distance between consecutive GPS fixes divided by the time difference (using `move2::mt_speed()`), or not (**no**).
-
+**Ground speed calculation**: If the dataset does not contain ground speed, choose whether to calculate it as the distance between consecutive locations divided by the time between them using move2::mt_speed() choose **yes**.
 ### Changes in output data
 
-If `retdata = "all"` and the dataset already contains ground speed (ground_speed or ground.speed), the output is the full input dataset (unchanged).
+If `Output data specification = "all"` and the dataset already contains ground speed (ground_speed or ground.speed), the output is the full input dataset (unchanged).
 
-If `retdata = "all"` and the dataset does not contain ground speed and speed_calc = "yes", a new column calculated_ground_speed is added and the full dataset is returned.
+If `Output data specification = "all"` and the dataset does not contain ground speed and `Ground speed calculation = "yes"`, a new column calculated_ground_speed is added and the full dataset is returned.
 
-If `retdata = "flight"`, the output is filtered to include only locations where ground speed is greater than the estimated antimode for that track.
+If `Output data specification = "flight"`, the output is filtered to include only locations where ground speed is greater than the estimated antimode for that track.
 
 
 ### Most common errors
-**Missing ground speed**: The dataset does not contain ground_speed or ground.speed, and speed_calc is set to No.
+**Missing ground speed**: The dataset does not contain ground_speed or ground.speed, and Ground speed calculation is set to No.
 
 ### Null or error handling
-**Ground speed missing:** If ground_speed/ground.speed is missing and speed_calc = "no", the App logs an informational message and returns the input dataset unchanged
-**Data:** If there are no flight data in your input data set, the results might be very unmeaningful and lead to an empty return data set or an error.
+- If ground speed is missing and calculation is disabled, the App logs a message and returns the input data unchanged.
+- If calculation is enabled, the App computes calculated_ground_speed using move2::mt_speed().
